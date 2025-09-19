@@ -463,6 +463,38 @@
             gap: 15px;
         }
         
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            background: white;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+        
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .notification.warning {
+            border-left: 4px solid var(--warning);
+        }
+        
         @media (max-width: 992px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -487,6 +519,18 @@
             }
             
             .tabs {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .attendance-buttons {
                 flex-direction: column;
             }
         }
@@ -722,7 +766,7 @@
                 <img src="https://via.placeholder.com/120" alt="Preview" class="photo-preview" id="photo-preview">
                 <div>
                     <input type="file" id="student-photo" accept="image/*" style="margin-bottom: 10px;">
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" id="upload-photo-btn">
                         <i class="fas fa-upload"></i> Upload Photo
                     </button>
                 </div>
@@ -748,25 +792,75 @@
                 <input type="tel" id="new-student-phone" placeholder="Enter student's phone number">
             </div>
             
-            <button class="btn btn-success" style="width: 100%; padding: 15px;">
+            <button class="btn btn-success" style="width: 100%; padding: 15px;" id="submit-student-btn">
                 <i class="fas fa-user-plus"></i> Add Student
             </button>
         </div>
     </div>
 
+    <!-- Edit Student Modal -->
+    <div class="modal" id="edit-student-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Student</h3>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="photo-upload">
+                <img src="https://via.placeholder.com/120" alt="Preview" class="photo-preview" id="edit-photo-preview">
+                <div>
+                    <input type="file" id="edit-student-photo" accept="image/*" style="margin-bottom: 10px;">
+                    <button class="btn btn-primary" id="edit-upload-photo-btn">
+                        <i class="fas fa-upload"></i> Upload Photo
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-student-name">Full Name:</label>
+                <input type="text" id="edit-student-name" placeholder="Enter student's full name">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-student-id">Student ID:</label>
+                <input type="text" id="edit-student-id" placeholder="Enter student ID" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-student-email">Email Address:</label>
+                <input type="email" id="edit-student-email" placeholder="Enter student's email">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-student-phone">Phone Number:</label>
+                <input type="tel" id="edit-student-phone" placeholder="Enter student's phone number">
+            </div>
+            
+            <button class="btn btn-success" style="width: 100%; padding: 15px;" id="update-student-btn">
+                <i class="fas fa-save"></i> Update Student
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Operation completed successfully</span>
+    </div>
+
     <script>
         // Sample student data
-        const students = [
-            { id: "CS001", name: "Aarav Sharma", photo: "https://randomuser.me/api/portraits/men/1.jpg", present: true },
-            { id: "CS002", name: "Aarushi Patel", photo: "https://randomuser.me/api/portraits/women/2.jpg", present: true },
-            { id: "CS003", name: "Advait Singh", photo: "https://randomuser.me/api/portraits/men/3.jpg", present: false },
-            { id: "CS004", name: "Ananya Gupta", photo: "https://randomuser.me/api/portraits/women/4.jpg", present: true },
-            { id: "CS005", name: "Arjun Kumar", photo: "https://randomuser.me/api/portraits/men/5.jpg", present: true },
-            { id: "CS006", name: "Avni Desai", photo: "https://randomuser.me/api/portraits/women/6.jpg", present: true },
-            { id: "CS007", name: "Dev Joshi", photo: "https://randomuser.me/api/portraits/men/7.jpg", present: false },
-            { id: "CS008", name: "Isha Reddy", photo: "https://randomuser.me/api/portraits/women/8.jpg", present: true },
-            { id: "CS009", name: "Krishna Mehta", photo: "https://randomuser.me/api/portraits/men/9.jpg", present: true },
-            { id: "CS010", name: "Neha Agarwal", photo: "https://randomuser.me/api/portraits/women/10.jpg", present: true }
+        let students = [
+            { id: "CS001", name: "Aarav Sharma", email: "aarav@example.com", phone: "9876543210", photo: "https://randomuser.me/api/portraits/men/1.jpg", present: true },
+            { id: "CS002", name: "Aarushi Patel", email: "aarushi@example.com", phone: "9876543211", photo: "https://randomuser.me/api/portraits/women/2.jpg", present: true },
+            { id: "CS003", name: "Advait Singh", email: "advait@example.com", phone: "9876543212", photo: "https://randomuser.me/api/portraits/men/3.jpg", present: false },
+            { id: "CS004", name: "Ananya Gupta", email: "ananya@example.com", phone: "9876543213", photo: "https://randomuser.me/api/portraits/women/4.jpg", present: true },
+            { id: "CS005", name: "Arjun Kumar", email: "arjun@example.com", phone: "9876543214", photo: "https://randomuser.me/api/portraits/men/5.jpg", present: true },
+            { id: "CS006", name: "Avni Desai", email: "avni@example.com", phone: "9876543215", photo: "https://randomuser.me/api/portraits/women/6.jpg", present: true },
+            { id: "CS007", name: "Dev Joshi", email: "dev@example.com", phone: "9876543216", photo: "https://randomuser.me/api/portraits/men/7.jpg", present: false },
+            { id: "CS008", name: "Isha Reddy", email: "isha@example.com", phone: "9876543217", photo: "https://randomuser.me/api/portraits/women/8.jpg", present: true },
+            { id: "CS009", name: "Krishna Mehta", email: "krishna@example.com", phone: "9876543218", photo: "https://randomuser.me/api/portraits/men/9.jpg", present: true },
+            { id: "CS010", name: "Neha Agarwal", email: "neha@example.com", phone: "9876543219", photo: "https://randomuser.me/api/portraits/women/10.jpg", present: true }
         ];
 
         // Generate more students to reach 250
@@ -775,6 +869,8 @@
             students.push({
                 id: `CS${i.toString().padStart(3, '0')}`,
                 name: `Student ${i}`,
+                email: `student${i}@example.com`,
+                phone: `98765${Math.floor(10000 + Math.random() * 90000)}`,
                 photo: `https://randomuser.me/api/portraits/${gender}/${i}.jpg`,
                 present: Math.random() > 0.2
             });
@@ -801,9 +897,16 @@
         const studentGrids = document.querySelectorAll('.student-grid');
         const addStudentBtn = document.getElementById('add-student-btn');
         const addStudentModal = document.getElementById('add-student-modal');
-        const closeModal = document.querySelector('.close');
+        const editStudentModal = document.getElementById('edit-student-modal');
+        const closeModal = document.querySelectorAll('.close');
         const photoPreview = document.getElementById('photo-preview');
+        const editPhotoPreview = document.getElementById('edit-photo-preview');
         const studentPhotoInput = document.getElementById('student-photo');
+        const editStudentPhotoInput = document.getElementById('edit-student-photo');
+        const submitStudentBtn = document.getElementById('submit-student-btn');
+        const updateStudentBtn = document.getElementById('update-student-btn');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
 
         // Initialize the application
         function init() {
@@ -850,13 +953,19 @@
                 addStudentModal.style.display = 'flex';
             });
             
-            closeModal.addEventListener('click', () => {
-                addStudentModal.style.display = 'none';
+            closeModal.forEach(close => {
+                close.addEventListener('click', () => {
+                    addStudentModal.style.display = 'none';
+                    editStudentModal.style.display = 'none';
+                });
             });
             
             window.addEventListener('click', (e) => {
                 if (e.target === addStudentModal) {
                     addStudentModal.style.display = 'none';
+                }
+                if (e.target === editStudentModal) {
+                    editStudentModal.style.display = 'none';
                 }
             });
             
@@ -872,10 +981,143 @@
                 }
             });
             
+            editStudentPhotoInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        editPhotoPreview.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Add new student
+            submitStudentBtn.addEventListener('click', addNewStudent);
+            
+            // Update student
+            updateStudentBtn.addEventListener('click', updateStudent);
+            
             // Render initial content
             renderAttendanceStudents();
             renderManagementStudents();
             renderHistoryStudents();
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            notificationText.textContent = message;
+            notification.className = 'notification show ' + type;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Add new student
+        function addNewStudent() {
+            const name = document.getElementById('new-student-name').value;
+            const id = document.getElementById('new-student-id').value;
+            const email = document.getElementById('new-student-email').value;
+            const phone = document.getElementById('new-student-phone').value;
+            const photo = photoPreview.src;
+            
+            if (name && id && email && phone) {
+                // Check if student ID already exists
+                if (students.some(student => student.id === id)) {
+                    showNotification('Student ID already exists!', 'error');
+                    return;
+                }
+                
+                students.push({
+                    id: id,
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    photo: photo,
+                    present: true
+                });
+                
+                showNotification('Student added successfully!');
+                
+                // Clear form
+                document.getElementById('new-student-name').value = '';
+                document.getElementById('new-student-id').value = '';
+                document.getElementById('new-student-email').value = '';
+                document.getElementById('new-student-phone').value = '';
+                photoPreview.src = 'https://via.placeholder.com/120';
+                
+                // Close modal
+                addStudentModal.style.display = 'none';
+                
+                // Refresh student lists
+                renderManagementStudents();
+                renderHistoryStudents();
+            } else {
+                showNotification('Please fill in all fields', 'error');
+            }
+        }
+
+        // Update student
+        function updateStudent() {
+            const id = document.getElementById('edit-student-id').value;
+            const name = document.getElementById('edit-student-name').value;
+            const email = document.getElementById('edit-student-email').value;
+            const phone = document.getElementById('edit-student-phone').value;
+            const photo = editPhotoPreview.src;
+            
+            if (name && id && email && phone) {
+                const index = students.findIndex(student => student.id === id);
+                
+                if (index !== -1) {
+                    students[index] = {
+                        ...students[index],
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        photo: photo
+                    };
+                    
+                    showNotification('Student updated successfully!');
+                    
+                    // Close modal
+                    editStudentModal.style.display = 'none';
+                    
+                    // Refresh student lists
+                    renderManagementStudents();
+                    renderAttendanceStudents();
+                    renderHistoryStudents();
+                } else {
+                    showNotification('Student not found!', 'error');
+                }
+            } else {
+                showNotification('Please fill in all fields', 'error');
+            }
+        }
+
+        // Delete student
+        function deleteStudent(studentId) {
+            if (confirm(`Are you sure you want to delete student ${studentId}?`)) {
+                students = students.filter(student => student.id !== studentId);
+                showNotification('Student deleted successfully!');
+                renderManagementStudents();
+                renderHistoryStudents();
+            }
+        }
+
+        // Open edit modal
+        function openEditModal(studentId) {
+            const student = students.find(s => s.id === studentId);
+            
+            if (student) {
+                document.getElementById('edit-student-id').value = student.id;
+                document.getElementById('edit-student-name').value = student.name;
+                document.getElementById('edit-student-email').value = student.email;
+                document.getElementById('edit-student-phone').value = student.phone;
+                editPhotoPreview.src = student.photo;
+                
+                editStudentModal.style.display = 'flex';
+            }
         }
 
         // Render student cards for attendance tab
@@ -922,6 +1164,8 @@
                         absentBtn.classList.remove('btn-danger');
                         absentBtn.classList.add('btn-primary');
                         absentBtn.innerHTML = '<i class="fas fa-user"></i> Mark Absent';
+                        
+                        showNotification(`Marked ${student.name} as present`);
                     }
                 });
             });
@@ -941,6 +1185,8 @@
                         presentBtn.classList.remove('btn-success');
                         presentBtn.classList.add('btn-primary');
                         presentBtn.innerHTML = '<i class="fas fa-user"></i> Mark Present';
+                        
+                        showNotification(`Marked ${student.name} as absent`);
                     }
                 });
             });
@@ -957,7 +1203,7 @@
                 card.innerHTML = `
                     <img src="${student.photo}" alt="${student.name}" class="student-photo">
                     <div class="student-info">
-                        <div class="student-name" contenteditable="true">${student.name}</div>
+                        <div class="student-name">${student.name}</div>
                         <div class="student-id">${student.id}</div>
                         <div class="action-buttons">
                             <button class="btn btn-sm btn-warning edit-btn" data-id="${student.id}">
@@ -976,24 +1222,14 @@
             document.querySelectorAll('.edit-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const studentId = this.getAttribute('data-id');
-                    const student = students.find(s => s.id === studentId);
-                    const card = this.closest('.student-card');
-                    const nameElement = card.querySelector('.student-name');
-                    
-                    if (student) {
-                        student.name = nameElement.textContent;
-                        alert(`Student ${studentId} updated successfully!`);
-                    }
+                    openEditModal(studentId);
                 });
             });
             
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const studentId = this.getAttribute('data-id');
-                    if (confirm(`Are you sure you want to delete student ${studentId}?`)) {
-                        // In a real application, this would remove from database
-                        alert(`Student ${studentId} has been deleted.`);
-                    }
+                    deleteStudent(studentId);
                 });
             });
         }
