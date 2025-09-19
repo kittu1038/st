@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #e63946;
+            --warning: #ffb703;
+            --info: #219ebc;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 100% 100%;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            height: fit-content;
+        }
+        
+        .class-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+        
+        .class-item {
+            padding: 15px;
+            margin-bottom: 12px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+        
+        .class-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .class-item.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .class-item i {
+            font-size: 1.2rem;
+        }
+        
+        .content-area {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .content-title {
+            font-size: 1.8rem;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+        
+        .stat-title {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .student-card {
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .student-photo {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .student-info {
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .student-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+        
+        .student-id {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .attendance-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #3a9fc5;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c1121f;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+        
+        .btn-warning:hover {
+            background: #fd9e02;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+        }
+        
+        .tab {
+            padding: 16px 20px;
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background: #f0f4ff;
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .attendance-history {
+            margin-top: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+            transition: var(--transition);
+        }
+        
+        .close:hover {
+            color: var(--danger);
+        }
+        
+        .photo-upload {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+        
+        .photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-present {
+            background: var(--success);
+            color: white;
+        }
+        
+        .badge-absent {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .search-box {
+            display: flex;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+            
+            .student-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .student-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Smart Attendance System</h1>
+            <p class="subtitle">Digital attendance tracking for multiple classes with photo management</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <h2><i class="fas fa-chalkboard"></i> Classes</h2>
+                <ul class="class-list">
+                    <li class="class-item active">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Computer Science - 250 Students</span>
+                    </li>
+                    <li class="class-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Electrical Engineering - 180 Students</span>
+                    </li>
+                    <li class="class-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Mechanical Engineering - 200 Students</span>
+                    </li>
+                    <li class="class-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Civil Engineering - 170 Students</span>
+                    </li>
+                    <li class="class-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Business Administration - 220 Students</span>
+                    </li>
+                </ul>
+                
+                <div style="margin-top: 30px;">
+                    <button class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-plus"></i> Add New Class
+                    </button>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <div class="content-header">
+                    <h2 class="content-title">Computer Science Class</h2>
+                    <div>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-download"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="dashboard">Dashboard</div>
+                    <div class="tab" data-tab="attendance">Mark Attendance</div>
+                    <div class="tab" data-tab="students">Student Management</div>
+                    <div class="tab" data-tab="history">Attendance History</div>
+                </div>
+                
+                <div class="tab-content active" id="dashboard">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-title">Total Students</div>
+                            <div class="stat-value">250</div>
+                            <div>Registered in class</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">Present Today</div>
+                            <div class="stat-value">217</div>
+                            <div>15 Nov 2023</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">Attendance Rate</div>
+                            <div class="stat-value">86.8%</div>
+                            <div>This month average</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin: 30px 0 20px;">Recent Attendance History</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Present</th>
+                                <th>Absent</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>15 Nov 2023</td>
+                                <td>217</td>
+                                <td>33</td>
+                                <td>86.8%</td>
+                            </tr>
+                            <tr>
+                                <td>14 Nov 2023</td>
+                                <td>225</td>
+                                <td>25</td>
+                                <td>90.0%</td>
+                            </tr>
+                            <tr>
+                                <td>13 Nov 2023</td>
+                                <td>210</td>
+                                <td>40</td>
+                                <td>84.0%</td>
+                            </tr>
+                            <tr>
+                                <td>12 Nov 2023</td>
+                                <td>230</td>
+                                <td>20</td>
+                                <td>92.0%</td>
+                            </tr>
+                            <tr>
+                                <td>11 Nov 2023</td>
+                                <td>205</td>
+                                <td>45</td>
+                                <td>82.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="tab-content" id="attendance">
+                    <div class="form-group">
+                        <label for="attendance-date">Select Date:</label>
+                        <input type="date" id="attendance-date" value="2023-11-15">
+                    </div>
+                    
+                    <div class="search-box">
+                        <input type="text" placeholder="Search students...">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    
+                    <div class="student-grid">
+                        <!-- Student cards will be generated here -->
+                    </div>
+                    
+                    <div style="margin-top: 30px; text-align: center;">
+                        <button class="btn btn-primary" style="padding: 15px 30px;">
+                            <i class="fas fa-save"></i> Save Attendance
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="students">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search students by name or ID...">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <button class="btn btn-success" id="add-student-btn">
+                            <i class="fas fa-plus"></i> Add Student
+                        </button>
+                    </div>
+                    
+                    <div class="student-grid">
+                        <!-- Student cards for management will be generated here -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="history">
+                    <div class="form-group">
+                        <label for="history-student">Select Student:</label>
+                        <select id="history-student">
+                            <option value="">All Students</option>
+                            <!-- Student options will be generated here -->
+                        </select>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="history-date-from">From:</label>
+                            <input type="date" id="history-date-from">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="history-date-to">To:</label>
+                            <input type="date" id="history-date-to">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filter History
+                    </button>
+                    
+                    <div class="attendance-history">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Attendance history will be generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Smart Attendance System &copy; 2023 | Developed for College Hackathon</p>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal" id="add-student-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Student</h3>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="photo-upload">
+                <img src="https://via.placeholder.com/120" alt="Preview" class="photo-preview" id="photo-preview">
+                <div>
+                    <input type="file" id="student-photo" accept="image/*" style="margin-bottom: 10px;">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Upload Photo
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="new-student-name">Full Name:</label>
+                <input type="text" id="new-student-name" placeholder="Enter student's full name">
+            </div>
+            
+            <div class="form-group">
+                <label for="new-student-id">Student ID:</label>
+                <input type="text" id="new-student-id" placeholder="Enter student ID">
+            </div>
+            
+            <div class="form-group">
+                <label for="new-student-email">Email Address:</label>
+                <input type="email" id="new-student-email" placeholder="Enter student's email">
+            </div>
+            
+            <div class="form-group">
+                <label for="new-student-phone">Phone Number:</label>
+                <input type="tel" id="new-student-phone" placeholder="Enter student's phone number">
+            </div>
+            
+            <button class="btn btn-success" style="width: 100%; padding: 15px;">
+                <i class="fas fa-user-plus"></i> Add Student
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Sample student data
+        const students = [
+            { id: "CS001", name: "Aarav Sharma", photo: "https://randomuser.me/api/portraits/men/1.jpg", present: true },
+            { id: "CS002", name: "Aarushi Patel", photo: "https://randomuser.me/api/portraits/women/2.jpg", present: true },
+            { id: "CS003", name: "Advait Singh", photo: "https://randomuser.me/api/portraits/men/3.jpg", present: false },
+            { id: "CS004", name: "Ananya Gupta", photo: "https://randomuser.me/api/portraits/women/4.jpg", present: true },
+            { id: "CS005", name: "Arjun Kumar", photo: "https://randomuser.me/api/portraits/men/5.jpg", present: true },
+            { id: "CS006", name: "Avni Desai", photo: "https://randomuser.me/api/portraits/women/6.jpg", present: true },
+            { id: "CS007", name: "Dev Joshi", photo: "https://randomuser.me/api/portraits/men/7.jpg", present: false },
+            { id: "CS008", name: "Isha Reddy", photo: "https://randomuser.me/api/portraits/women/8.jpg", present: true },
+            { id: "CS009", name: "Krishna Mehta", photo: "https://randomuser.me/api/portraits/men/9.jpg", present: true },
+            { id: "CS010", name: "Neha Agarwal", photo: "https://randomuser.me/api/portraits/women/10.jpg", present: true }
+        ];
+
+        // Generate more students to reach 250
+        for (let i = 11; i <= 250; i++) {
+            const gender = Math.random() > 0.5 ? 'men' : 'women';
+            students.push({
+                id: `CS${i.toString().padStart(3, '0')}`,
+                name: `Student ${i}`,
+                photo: `https://randomuser.me/api/portraits/${gender}/${i}.jpg`,
+                present: Math.random() > 0.2
+            });
+        }
+
+        // Sample attendance history data
+        const attendanceHistory = [
+            { date: "2023-11-15", studentId: "CS003", status: "Absent" },
+            { date: "2023-11-15", studentId: "CS007", status: "Absent" },
+            { date: "2023-11-14", studentId: "CS005", status: "Present" },
+            { date: "2023-11-14", studentId: "CS012", status: "Absent" },
+            { date: "2023-11-13", studentId: "CS008", status: "Present" },
+            { date: "2023-11-13", studentId: "CS015", status: "Absent" },
+            { date: "2023-11-12", studentId: "CS002", status: "Present" },
+            { date: "2023-11-12", studentId: "CS009", status: "Present" },
+            { date: "2023-11-11", studentId: "CS004", status: "Present" },
+            { date: "2023-11-11", studentId: "CS020", status: "Absent" }
+        ];
+
+        // DOM elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const classItems = document.querySelectorAll('.class-item');
+        const studentGrids = document.querySelectorAll('.student-grid');
+        const addStudentBtn = document.getElementById('add-student-btn');
+        const addStudentModal = document.getElementById('add-student-modal');
+        const closeModal = document.querySelector('.close');
+        const photoPreview = document.getElementById('photo-preview');
+        const studentPhotoInput = document.getElementById('student-photo');
+
+        // Initialize the application
+        function init() {
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Refresh content if needed
+                    if (tabId === 'attendance') {
+                        renderAttendanceStudents();
+                    } else if (tabId === 'students') {
+                        renderManagementStudents();
+                    } else if (tabId === 'history') {
+                        renderHistoryStudents();
+                        renderAttendanceHistory();
+                    }
+                });
+            });
+            
+            // Class switching
+            classItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    classItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    document.querySelector('.content-title').textContent = item.querySelector('span').textContent.split(' - ')[0];
+                    
+                    // Refresh student data based on class
+                    renderAttendanceStudents();
+                    renderManagementStudents();
+                    renderHistoryStudents();
+                });
+            });
+            
+            // Modal functionality
+            addStudentBtn.addEventListener('click', () => {
+                addStudentModal.style.display = 'flex';
+            });
+            
+            closeModal.addEventListener('click', () => {
+                addStudentModal.style.display = 'none';
+            });
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === addStudentModal) {
+                    addStudentModal.style.display = 'none';
+                }
+            });
+            
+            // Photo upload preview
+            studentPhotoInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        photoPreview.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Render initial content
+            renderAttendanceStudents();
+            renderManagementStudents();
+            renderHistoryStudents();
+        }
+
+        // Render student cards for attendance tab
+        function renderAttendanceStudents() {
+            const grid = document.querySelector('#attendance .student-grid');
+            grid.innerHTML = '';
+            
+            students.forEach(student => {
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.innerHTML = `
+                    <img src="${student.photo}" alt="${student.name}" class="student-photo">
+                    <div class="student-info">
+                        <div class="student-name">${student.name}</div>
+                        <div class="student-id">${student.id}</div>
+                        <div class="attendance-buttons">
+                            <button class="btn btn-sm ${student.present ? 'btn-success' : 'btn-primary'} present-btn" data-id="${student.id}">
+                                <i class="fas ${student.present ? 'fa-check' : 'fa-user'}"></i> 
+                                ${student.present ? 'Present' : 'Mark Present'}
+                            </button>
+                            <button class="btn btn-sm ${!student.present ? 'btn-danger' : 'btn-primary'} absent-btn" data-id="${student.id}">
+                                <i class="fas ${!student.present ? 'fa-times' : 'fa-user'}"></i> 
+                                ${!student.present ? 'Absent' : 'Mark Absent'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            // Add event listeners to attendance buttons
+            document.querySelectorAll('.present-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    const student = students.find(s => s.id === studentId);
+                    
+                    if (student && !student.present) {
+                        student.present = true;
+                        this.classList.remove('btn-primary');
+                        this.classList.add('btn-success');
+                        this.innerHTML = '<i class="fas fa-check"></i> Present';
+                        
+                        const absentBtn = this.nextElementSibling;
+                        absentBtn.classList.remove('btn-danger');
+                        absentBtn.classList.add('btn-primary');
+                        absentBtn.innerHTML = '<i class="fas fa-user"></i> Mark Absent';
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.absent-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    const student = students.find(s => s.id === studentId);
+                    
+                    if (student && student.present) {
+                        student.present = false;
+                        this.classList.remove('btn-primary');
+                        this.classList.add('btn-danger');
+                        this.innerHTML = '<i class="fas fa-times"></i> Absent';
+                        
+                        const presentBtn = this.previousElementSibling;
+                        presentBtn.classList.remove('btn-success');
+                        presentBtn.classList.add('btn-primary');
+                        presentBtn.innerHTML = '<i class="fas fa-user"></i> Mark Present';
+                    }
+                });
+            });
+        }
+
+        // Render student cards for management tab
+        function renderManagementStudents() {
+            const grid = document.querySelector('#students .student-grid');
+            grid.innerHTML = '';
+            
+            students.forEach(student => {
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.innerHTML = `
+                    <img src="${student.photo}" alt="${student.name}" class="student-photo">
+                    <div class="student-info">
+                        <div class="student-name" contenteditable="true">${student.name}</div>
+                        <div class="student-id">${student.id}</div>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-warning edit-btn" data-id="${student.id}">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-id="${student.id}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    const student = students.find(s => s.id === studentId);
+                    const card = this.closest('.student-card');
+                    const nameElement = card.querySelector('.student-name');
+                    
+                    if (student) {
+                        student.name = nameElement.textContent;
+                        alert(`Student ${studentId} updated successfully!`);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    if (confirm(`Are you sure you want to delete student ${studentId}?`)) {
+                        // In a real application, this would remove from database
+                        alert(`Student ${studentId} has been deleted.`);
+                    }
+                });
+            });
+        }
+
+        // Render student options for history tab
+        function renderHistoryStudents() {
+            const select = document.getElementById('history-student');
+            select.innerHTML = '<option value="">All Students</option>';
+            
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = `${student.name} (${student.id})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Render attendance history
+        function renderAttendanceHistory() {
+            const tbody = document.querySelector('#history tbody');
+            tbody.innerHTML = '';
+            
+            const studentFilter = document.getElementById('history-student').value;
+            const dateFrom = document.getElementById('history-date-from').value;
+            const dateTo = document.getElementById('history-date-to').value;
+            
+            let filteredHistory = attendanceHistory;
+            
+            if (studentFilter) {
+                filteredHistory = filteredHistory.filter(record => record.studentId === studentFilter);
+            }
+            
+            if (dateFrom) {
+                filteredHistory = filteredHistory.filter(record => record.date >= dateFrom);
+            }
+            
+            if (dateTo) {
+                filteredHistory = filteredHistory.filter(record => record.date <= dateTo);
+            }
+            
+            filteredHistory.forEach(record => {
+                const student = students.find(s => s.id === record.studentId);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.date}</td>
+                    <td>${record.studentId}</td>
+                    <td>${student ? student.name : 'Unknown'}</td>
+                    <td><span class="badge ${record.status === 'Present' ? 'badge-present' : 'badge-absent'}">${record.status}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Add sample data if no records
+            if (filteredHistory.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="4" style="text-align: center;">No attendance records found</td>`;
+                tbody.appendChild(row);
+            }
+        }
+
+        // Initialize the app when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
